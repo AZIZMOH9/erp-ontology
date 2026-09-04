@@ -77,7 +77,12 @@ def cmd_map_plan(
 def cmd_map_run(
     schema: Path = typer.Argument(..., help="schema snapshot JSON"),
     out: Path = typer.Option(..., "--out", "-o", help="where to write the ontology"),
-    provider: Provider = typer.Option(Provider.ANTHROPIC, "--provider", help="anthropic | openai | google"),
+    provider: Provider = typer.Option(
+        Provider.ANTHROPIC,
+        "--provider",
+        envvar="ERP_PLANNER_PROVIDER",
+        help="anthropic | openai | google",
+    ),
     model: str = typer.Option(None, "--model", help="bulk model (default: provider's)"),
     hard_model: str = typer.Option(None, "--hard-model", help="model for the agent path"),
     api_key: str = typer.Option(

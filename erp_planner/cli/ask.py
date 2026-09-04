@@ -22,7 +22,9 @@ def cmd_ask(
     schema: Path = typer.Option(..., "--schema", "-s", help="the schema snapshot"),
     db_url: str = typer.Option(..., "--db-url", envvar="ERP_PLANNER_DB_URL"),
     db_schema: str = typer.Option("public", "--db-schema"),
-    provider: Provider = typer.Option(Provider.ANTHROPIC, "--provider"),
+    provider: Provider = typer.Option(
+        Provider.ANTHROPIC, "--provider", envvar="ERP_PLANNER_PROVIDER"
+    ),
     model: str = typer.Option(None, "--model"),
     api_key: str = typer.Option(None, "--api-key"),
     show_sql: bool = typer.Option(True, "--sql/--no-sql"),
