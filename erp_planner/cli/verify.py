@@ -31,7 +31,9 @@ def cmd_verify_judge(
     schema: Path = typer.Option(..., "--schema", "-s"),
     against: Path = typer.Option(..., "--against", "-a", help="an independent second run"),
     queue: Path = typer.Option(None, "--queue", "-q", help="a review queue to narrow in place"),
-    provider: Provider = typer.Option(Provider.ANTHROPIC, "--provider"),
+    provider: Provider = typer.Option(
+        Provider.ANTHROPIC, "--provider", envvar="ERP_PLANNER_PROVIDER"
+    ),
     model: str = typer.Option(None, "--model"),
     api_key: str = typer.Option(None, "--api-key"),
     threshold: float = typer.Option(DEFAULT_FLAG_THRESHOLD, "--threshold"),
