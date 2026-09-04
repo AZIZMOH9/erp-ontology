@@ -91,6 +91,12 @@ def cmd_map_run(
         0.75, "--escalate-below", help="send a cheap answer this unsure to the agent"
     ),
     max_iterations: int = typer.Option(6, "--max-iterations", help="tool rounds per agent run"),
+    attempts: int = typer.Option(
+        3, "--attempts", help="tries per cluster before the run gives up on it"
+    ),
+    sweeps: int = typer.Option(
+        3, "--sweeps", help="passes back over the clusters that failed, at the end"
+    ),
     db_url: str = typer.Option(
         None, "--db-url", envvar="ERP_PLANNER_DB_URL", help="live database for the agent's tools"
     ),
@@ -127,6 +133,8 @@ def cmd_map_run(
         use_agent=not no_agent,
         escalate_below=escalate_below,
         max_iterations=max_iterations,
+        attempts=attempts,
+        sweeps=sweeps,
         db_url=db_url,
         reconcile=reconcile,
     )
@@ -146,6 +154,9 @@ def cmd_map_run(
 
     def progress(result, usage) -> None:
         done["n"] += 1
+        # A sweep re-runs clusters already counted, so it numbers itself rather than running
+        # past the total.
+        position = f"{done['n']:>3}/{total}" if done["n"] <= total else "  retry"
         tag = (
             "[red]FAILED[/red]"
             if result.error
@@ -153,7 +164,7 @@ def cmd_map_run(
         )
         confidence = result.min_confidence
         console.print(
-            f"[dim]{done['n']:>3}/{total}[/dim] {tag:<18} "
+            f"[dim]{position}[/dim] {tag:<18} "
             f"[dim]#{result.cluster.index:<3}[/dim] h={result.hardness.score:.2f} "
             f"{len(result.cluster.tables):>2}t "
             + (f"{result.tool_calls}tool " if result.tool_calls else "      ")
@@ -179,6 +190,8 @@ def cmd_map_run(
         ("  escalated", str(sum(1 for r in run.results if r.escalated))),
         ("  failed", f"[red]{len(run.failures)}[/red]" if run.failures else "0"),
         ("tool calls", str(sum(r.tool_calls for r in run.results))),
+        ("clusters retried", str(run.ontology.run_metadata.get("cluster_retries", 0))),
+        ("recovered by a later sweep", str(run.ontology.run_metadata.get("recovered_by_sweeps", 0))),
         ("rate-limit waits", str(run.ontology.run_metadata.get("rate_limit_waits", 0))),
         ("unparseable answers re-asked", str(run.ontology.run_metadata.get("parse_retries", 0))),
         ("classes / properties / relations", f"{len(o.classes)} / {len(o.properties)} / {len(o.relations)}"),
@@ -202,4 +215,15 @@ def cmd_map_run(
         else "[yellow]unknown[/yellow] (no price table for this model)",
     )
     console.print(summary)
+    abandoned = run.ontology.run_metadata.get("abandoned_clusters", 0)
+    if abandoned:
+        # Silence here would read as "the schema was smaller than you thought".
+        last = run.failures[-1].error if run.failures else ""
+        console.print(
+            f"\n[red]stopped after {len(run.failures)} clusters failed and none succeeded[/red] — "
+            f"{abandoned} were not attempted."
+            f"\n  [dim]last error: {last}[/dim]"
+            "\n  [dim]a run that fails every cluster is not going to start working: check the key,"
+            " the quota, or try --model with a less contended one, and lower --concurrency.[/dim]"
+        )
     console.print(f"[green]wrote[/green] {out}")
