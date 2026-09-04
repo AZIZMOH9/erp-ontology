@@ -522,6 +522,46 @@ def run(
 # Where a run's output goes. Relative to wherever the user is standing, not to wherever this
 # package happens to be installed -- their ontology is their data and does not belong inside our
 # source tree, which is where it used to land.
+# What each file a run leaves behind actually is. The pipeline named these one step at a time,
+# which meant that by the end nobody could say where the ontology was without scrolling back.
+ARTIFACTS: tuple[tuple[str, str], ...] = (
+    ("schema.json", "the schema as read: tables, columns, keys, masked sample values"),
+    ("ontology.json", "the ontology: classes, their properties, and the relations between them"),
+    ("second.json", "the independent second mapping, kept so verify can compare the two"),
+    ("queue.json", "the review queue, least trustworthy first"),
+    ("ontology.ttl", "the ontology as OWL — opens in Protege or webvowl.org"),
+    ("graph.svg", "the ontology drawn — open in a browser"),
+    ("graph.png", "the same picture as an image"),
+    ("graph.dot", "Graphviz source for the picture"),
+    ("ontology.tools.json", "what the agent asked the database while it was mapping"),
+)
+
+
+def report_outputs(console: Console, runs: Path) -> None:
+    """Say where everything went, once, at the end."""
+    from rich.table import Table
+
+    present = [(name, what) for name, what in ARTIFACTS if (runs / name).exists()]
+    if not present:
+        console.print("\n[dim]no output files were written[/dim]")
+        return
+
+    table = Table(title=f"Written to {runs.resolve()}", title_justify="left", show_lines=False)
+    table.add_column("file", style="bold")
+    table.add_column("size", justify="right")
+    table.add_column("what it is")
+    for name, what in present:
+        size = (runs / name).stat().st_size
+        human = f"{size / 1_000_000:.1f}M" if size >= 1_000_000 else f"{size // 1000 or 1}K"
+        table.add_row(str(runs / name), human, what)
+    console.print()
+    console.print(table)
+    if (runs / "ontology.ttl").exists():
+        console.print(f"  [dim]the ontology:[/dim] open {runs / 'ontology.ttl'} in Protege")
+    if (runs / "graph.svg").exists():
+        console.print(f"  [dim]the picture:[/dim]   open {runs / 'graph.svg'}")
+
+
 DEFAULT_OUTPUT = "erp-planner"
 
 

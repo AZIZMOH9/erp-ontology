@@ -89,6 +89,8 @@ def cmd_pipeline(
         connect,
         default_steps,
         ensure_api_key,
+        output_dir,
+        report_outputs,
         run,
     )
 
@@ -127,3 +129,4 @@ def cmd_pipeline(
     )
     ran = run(steps, console=console, assume_yes=yes, known=every)
     console.print(f"[bold]{ran}/{len(steps)}[/bold] steps ran.")
+    report_outputs(console, output_dir())
