@@ -25,6 +25,10 @@ run = "uv pip install -e ."
 
 # --- the whole thing ---------------------------------------------------------------------------
 
+[tasks."pipeline:all"]
+description = "Run every step without asking. COSTS MONEY — see `mise run plan` first"
+run = "erp-planner pipeline --yes"
+
 [tasks.pipeline]
 description = "Run everything, step by step, accepting or skipping each one"
 # raw: hand the terminal to the task, so the prompts can actually read your answers.
