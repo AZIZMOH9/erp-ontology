@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="erp-ontology" width="640">
+</p>
+
 # erp-ontology
 
 **Turn an ERP database into an ontology.**
@@ -21,7 +25,7 @@ those conclusions to trust, and writes the result as OWL.
 ```
 
 On a 418-table Odoo it produces **418 classes, 1,775 properties and 1,054 relations**, each
-traceable to the table it came from, in about five minutes and roughly a dollar of model calls.
+traceable to the table it came from, in about five minutes.
 
 ## Where the code is
 
@@ -34,9 +38,8 @@ git clone -b dev https://github.com/AZIZMOH9/erp-ontology.git
 
 ## Status
 
-Working and measured, not finished. Mapping accuracy has been evaluated against RODI, an external
-gold standard, and end to end by question answering. Two things are known to be weak: the review
-queue's catch rate sits below its target, and the class hierarchy is thin — 16 of 418 classes carry
-a parent. Both are recorded in the docs on `dev` rather than papered over.
+Working and measured, not finished. Two things are known to be weak: the review queue's catch rate
+sits below its target, and the class hierarchy is thin — 16 of 418 classes carry a parent. Nothing
+here should be trusted unreviewed.
 
 MIT licensed.
