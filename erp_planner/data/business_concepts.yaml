@@ -1,0 +1,44 @@
+# Equivalence sets used by the benchmark scorer.
+#
+# A mapping is scored correct if its label resolves to the same canonical concept as the gold
+# label. Extend this file whenever a review turns up a defensible synonym the scorer rejected --
+# but extend it BEFORE looking at which side of the comparison it helps, and record why in the
+# commit message. Retro-fitting synonyms to rescue failing runs is how a benchmark rots.
+
+concepts:
+  Customer: [client, buyer, debtor, sold-to party, customer master, account, business partner customer]
+  Supplier: [vendor, creditor, seller, supplier master, business partner supplier, purchasing partner]
+  Party: [business partner, partner, legal entity, counterparty, contact]
+  Person: [individual, natural person, contact person]
+  Organisation: [organization, company, firm, legal person]
+  Employee: [staff member, personnel, worker, human resource]
+  Product: [item, article, material, sku, good, product master]
+  ProductCategory: [item group, material group, product class, commodity group]
+  SalesOrder: [customer order, sale order, sales document, so]
+  PurchaseOrder: [po, purchase document, procurement order]
+  OrderLine: [order item, order position, line item, order detail]
+  Invoice: [bill, customer invoice, ar invoice, billing document]
+  VendorBill: [supplier invoice, ap invoice, purchase invoice]
+  Payment: [remittance, settlement, cash receipt]
+  Currency: [monetary unit]
+  UnitOfMeasure: [uom, unit, measurement unit]
+  Warehouse: [storage location, site, plant, depot]
+  StockMove: [inventory movement, goods movement, material movement, stock transaction]
+  StockQuant: [stock level, inventory balance, on hand quantity, stock on hand]
+  Lot: [batch, serial group, lot number]
+  Address: [postal address, location address]
+  Country: [nation]
+  TaxRate: [tax, vat rate, tax code]
+  Account: [gl account, ledger account, chart of accounts entry]
+  JournalEntry: [accounting entry, ledger entry, posting, financial document]
+  JournalEntryLine: [accounting entry line, posting line, ledger line]
+  CostCenter: [cost centre, profit center]
+  Project: [engagement, job]
+  Task: [activity, work item]
+  BillOfMaterials: [bom, recipe, product structure]
+  WorkOrder: [production order, manufacturing order, job order]
+  Shipment: [delivery, delivery note, goods issue, picking]
+  Quotation: [quote, offer, estimate, proposal]
+  Contract: [agreement]
+  User: [system user, login, principal]
+  Company: [legal entity company, operating company, organisational unit]
