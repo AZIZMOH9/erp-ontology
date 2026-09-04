@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1352" viewBox="0 0 1280 1352" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+  </marker>
+</defs>
+<style>
+  .h1 { font-size: 27px; font-weight: 700; }
+  .h2 { font-size: 14px; }
+  .colh { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; }
+  .st { font-size: 20px; font-weight: 700; letter-spacing: .6px; text-anchor: middle; }
+  .ss { font-size: 12.5px; text-anchor: middle; }
+  .num { font-size: 15px; font-weight: 700; fill: #fff; text-anchor: middle; }
+  .ct { font-size: 12px; font-weight: 700; letter-spacing: .3px; }
+  .cd { font-size: 12px; fill: #0f172a;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .arr { stroke: #64748b; stroke-width: 2; marker-end: url(#a); }
+  .spine { stroke-width: 3; }
+</style>
+<rect width="1280" height="1352" fill="#ffffff"/>
+<text x="40" y="46" class="h1" fill="#0f172a">ERP → Ontology pipeline</text>
+<text x="40" y="72" class="h2" fill="#64748b">what each step receives, and what it hands on</text>
+<text x="40" y="96" class="colh" fill="#64748b">INPUT</text>
+<text x="430" y="96" class="colh" fill="#64748b">STEP</text>
+<text x="820" y="96" class="colh" fill="#64748b">OUTPUT</text>
+<rect x="980" y="26" width="16" height="16" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<text x="1004" y="39" class="cd" fill="#64748b">built</text>
+<rect x="1070" y="26" width="16" height="16" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="1094" y="39" class="cd" fill="#64748b">planned</text>
+<line x1="370" y1="171.5" x2="422" y2="171.5" class="arr"/>
+<line x1="760" y1="171.5" x2="812" y2="171.5" class="arr"/>
+<line x1="595.0" y1="214.5" x2="595.0" y2="281.5" class="arr spine"/>
+<rect x="40" y="104" width="330" height="135" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="1.5"/>
+<text x="54" y="129" class="ct" fill="#475569">Odoo — 2 connections</text>
+<text x="54" y="150" class="cd">postgres  information_schema</text>
+<text x="54" y="167" class="cd">          pg_class · pg_stats</text>
+<text x="54" y="184" class="cd">          SELECT … LIMIT 200</text>
+<text x="54" y="201" class="cd">xml-rpc   ir.model.fields</text>
+<text x="54" y="218" class="cd">511 tables</text>
+<rect x="430" y="128.5" width="330" height="86.0" rx="12" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<circle cx="458" cy="156.5" r="15" fill="#1d4ed8"/>
+<text x="458" y="161.5" class="num">1</text>
+<text x="609.0" y="164.5" class="st" fill="#0f172a">INGEST</text>
+<text x="609.0" y="188.5" class="ss" fill="#64748b">introspect + sample</text>
+<rect x="820" y="104" width="420" height="135" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="129" class="ct" fill="#d97706">SchemaSnapshot  ·  ~4s</text>
+<text x="834" y="150" class="cd">418 tables · 4,352 cols · 1,678 keys</text>
+<text x="834" y="167" class="cd">{ "name": "x_scr", "custom": true,</text>
+<text x="834" y="184" class="cd">  "description": "Scr",</text>
+<text x="834" y="201" class="cd">  "distinct_count": 17,</text>
+<text x="834" y="218" class="cd">  "sample_values": ["3.6","1.2"] }</text>
+<line x1="370" y1="332.5" x2="422" y2="332.5" class="arr"/>
+<line x1="760" y1="332.5" x2="812" y2="332.5" class="arr"/>
+<line x1="595.0" y1="375.5" x2="595.0" y2="434.0" class="arr spine"/>
+<rect x="40" y="265" width="330" height="135" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="290" class="ct" fill="#d97706">Raw sample values</text>
+<text x="54" y="311" class="cd">ACME GmbH</text>
+<text x="54" y="328" class="cd">DE811907980</text>
+<text x="54" y="345" class="cd">jo@acme.de</text>
+<text x="54" y="362" class="cd">TOL, SURF</text>
+<text x="54" y="379" class="cd">2026-03-22</text>
+<rect x="430" y="289.5" width="330" height="86.0" rx="12" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<circle cx="458" cy="317.5" r="15" fill="#1d4ed8"/>
+<text x="458" y="322.5" class="num">2</text>
+<text x="609.0" y="325.5" class="st" fill="#0f172a">MASK</text>
+<text x="609.0" y="349.5" class="ss" fill="#64748b">all | sensitive | none</text>
+<rect x="820" y="265" width="420" height="135" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="290" class="ct" fill="#d97706">Shapes  ·  209 of 1,188 masked</text>
+<text x="834" y="311" class="cd">AAAA AaaA</text>
+<text x="834" y="328" class="cd">AA999999999</text>
+<text x="834" y="345" class="cd">aa@aaaa.aa</text>
+<text x="834" y="362" class="cd">TOL, SURF          ← business code</text>
+<text x="834" y="379" class="cd">2026-03-22         ← date</text>
+<line x1="370" y1="485.0" x2="422" y2="485.0" class="arr"/>
+<line x1="760" y1="485.0" x2="812" y2="485.0" class="arr"/>
+<line x1="595.0" y1="528.0" x2="595.0" y2="603.5" class="arr spine"/>
+<rect x="40" y="426" width="330" height="118" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="451" class="ct" fill="#d97706">Whole schema</text>
+<text x="54" y="472" class="cd">418 tables · 1,678 foreign keys</text>
+<text x="54" y="489" class="cd">cut: create_uid, write_uid,</text>
+<text x="54" y="506" class="cd">     company_id  (bookkeeping)</text>
+<text x="54" y="523" class="cd">cut: degree ≥ 60  (hubs)</text>
+<rect x="430" y="442.0" width="330" height="86.0" rx="12" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<circle cx="458" cy="470.0" r="15" fill="#1d4ed8"/>
+<text x="458" y="475.0" class="num">3</text>
+<text x="609.0" y="478.0" class="st" fill="#0f172a">CLUSTER</text>
+<text x="609.0" y="502.0" class="ss" fill="#64748b">FK neighbourhoods</text>
+<rect x="820" y="426" width="420" height="118" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="451" class="ct" fill="#d97706">77 clusters  ·  median 3 tables</text>
+<text x="834" y="472" class="cd">#0 map     x_mfg_scrap, product_template,</text>
+<text x="834" y="489" class="cd">           mrp_bom, mrp_bom_line, +8</text>
+<text x="834" y="506" class="cd">   context res_users, uom_uom, …</text>
+<text x="834" y="523" class="cd">   route   hard — customer-built tables</text>
+<line x1="370" y1="654.5" x2="422" y2="654.5" class="arr"/>
+<line x1="760" y1="654.5" x2="812" y2="654.5" class="arr"/>
+<line x1="595.0" y1="697.5" x2="595.0" y2="764.5" class="arr spine"/>
+<rect x="40" y="570" width="330" height="169" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="595" class="ct" fill="#d97706">Cached prefix + one cluster</text>
+<text x="54" y="616" class="cd">prefix  ~1,325 tok, identical every call</text>
+<text x="54" y="633" class="cd">        system · db overview · vocabulary</text>
+<text x="54" y="650" class="cd">        · 2 worked examples</text>
+<text x="54" y="667" class="cd">cluster TABLE x_sup_qual_rec (custom)</text>
+<text x="54" y="684" class="cd">        x_scr double [CUSTOM] 3.6 1.2 2.7</text>
+<text x="54" y="701" class="cd">hardness 0.528 &gt;= 0.40  → AGENT path</text>
+<rect x="430" y="611.5" width="330" height="86.0" rx="12" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<circle cx="458" cy="639.5" r="15" fill="#1d4ed8"/>
+<text x="458" y="644.5" class="num">4</text>
+<text x="609.0" y="647.5" class="st" fill="#0f172a">MAP</text>
+<text x="609.0" y="671.5" class="ss" fill="#64748b">route: base | agent</text>
+<rect x="820" y="570" width="420" height="169" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="595" class="ct" fill="#d97706">Ontology  ·  ~$1.94 / full run</text>
+<text x="834" y="616" class="cd">class     x_sup_qual_rec → SupplierQualityAudit</text>
+<text x="834" y="633" class="cd">                           confidence 0.62</text>
+<text x="834" y="650" class="cd">property  x_scr          → auditScore</text>
+<text x="834" y="667" class="cd">relation  x_prt          → auditedSupplier</text>
+<text x="834" y="684" class="cd">base   75 clusters · 1 call · no tools</text>
+<text x="834" y="701" class="cd">agent   2 clusters · tools · investigate</text>
+<text x="834" y="718" class="cd">+ run_metadata: path, hardness, tools, cost</text>
+<line x1="370" y1="815.5" x2="422" y2="815.5" class="arr"/>
+<line x1="760" y1="815.5" x2="812" y2="815.5" class="arr"/>
+<line x1="595.0" y1="858.5" x2="595.0" y2="884.0" class="arr spine"/>
+<rect x="40" y="765" width="330" height="101" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="790" class="ct" fill="#d97706">Ontology</text>
+<text x="54" y="811" class="cd">every mapping + confidence</text>
+<rect x="430" y="772.5" width="330" height="86.0" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="458" cy="800.5" r="15" fill="#94a3b8"/>
+<text x="458" y="805.5" class="num">5</text>
+<text x="609.0" y="808.5" class="st" fill="#0f172a">VERIFY</text>
+<text x="609.0" y="832.5" class="ss" fill="#64748b">SHACL + semantic checks</text>
+<rect x="820" y="765" width="420" height="101" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="790" class="ct" fill="#d97706">Flagged queue</text>
+<text x="834" y="811" class="cd">ranked low-confidence mappings</text>
+<text x="834" y="828" class="cd">calibration curve</text>
+<text x="834" y="845" class="cd">catch rate · flag precision</text>
+<line x1="370" y1="935.0" x2="422" y2="935.0" class="arr"/>
+<line x1="760" y1="935.0" x2="812" y2="935.0" class="arr"/>
+<line x1="595.0" y1="978.0" x2="595.0" y2="996.0" class="arr spine"/>
+<rect x="40" y="892" width="330" height="86" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="917" class="ct" fill="#d97706">Flagged queue</text>
+<text x="54" y="938" class="cd">≤ 20% of mappings</text>
+<rect x="430" y="892.0" width="330" height="86.0" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="458" cy="920.0" r="15" fill="#94a3b8"/>
+<text x="458" y="925.0" class="num">6</text>
+<text x="609.0" y="928.0" class="st" fill="#0f172a">REVIEW</text>
+<text x="609.0" y="952.0" class="ss" fill="#64748b">expert sees flagged only</text>
+<rect x="820" y="892" width="420" height="86" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="917" class="ct" fill="#d97706">Accepted ontology</text>
+<text x="834" y="938" class="cd">+ corrections dataset</text>
+<text x="834" y="955" class="cd">+ measured hours vs. authoring</text>
+<line x1="370" y1="1047.0" x2="422" y2="1047.0" class="arr"/>
+<line x1="760" y1="1047.0" x2="812" y2="1047.0" class="arr"/>
+<line x1="595.0" y1="1090.0" x2="595.0" y2="1108.0" class="arr spine"/>
+<rect x="40" y="1004" width="330" height="86" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="1029" class="ct" fill="#d97706">Accepted ontology</text>
+<text x="54" y="1050" class="cd">mappings the expert signed off</text>
+<rect x="430" y="1004.0" width="330" height="86.0" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="458" cy="1032.0" r="15" fill="#94a3b8"/>
+<text x="458" y="1037.0" class="num">7</text>
+<text x="609.0" y="1040.0" class="st" fill="#0f172a">SERVE</text>
+<text x="609.0" y="1064.0" class="ss" fill="#64748b">virtual knowledge graph</text>
+<rect x="820" y="1004" width="420" height="86" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="1029" class="ct" fill="#d97706">Queryable layer</text>
+<text x="834" y="1050" class="cd">SPARQL → SQL, data stays put</text>
+<text x="834" y="1067" class="cd">incremental re-map on schema drift</text>
+<line x1="370" y1="1159.0" x2="422" y2="1159.0" class="arr"/>
+<line x1="760" y1="1159.0" x2="812" y2="1159.0" class="arr"/>
+<rect x="40" y="1116" width="330" height="86" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="54" y="1141" class="ct" fill="#d97706">Natural-language intent</text>
+<text x="54" y="1162" class="cd">"reserve stock for order 4021"</text>
+<rect x="430" y="1116.0" width="330" height="86.0" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="458" cy="1144.0" r="15" fill="#94a3b8"/>
+<text x="458" y="1149.0" class="num">8</text>
+<text x="609.0" y="1152.0" class="st" fill="#0f172a">ACT</text>
+<text x="609.0" y="1176.0" class="ss" fill="#64748b">writes via ERP API only</text>
+<rect x="820" y="1116" width="420" height="86" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+<text x="834" y="1141" class="ct" fill="#d97706">Sanctioned ERP calls</text>
+<text x="834" y="1162" class="cd">Odoo ORM / SAP BAPI — never raw SQL</text>
+<text x="834" y="1179" class="cd">dry-run · audit trail · allow-list</text>
+<rect x="40" y="1242" width="1200" height="88" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="54" y="1266" class="ct" fill="#475569">BENCHMARK — runs beside the pipeline, not inside it</text>
+<text x="54" y="1289" class="cd" fill="#0f172a">schema.json → obfuscate → t_9f21ab / c_3ccb81 → MAP → prediction → score vs gold</text>
+<text x="54" y="1310" class="cd" fill="#0f172a">→ accuracy by tier × obfuscation     ·     the alias map goes to the scorer, never the mapper</text>
+</svg>

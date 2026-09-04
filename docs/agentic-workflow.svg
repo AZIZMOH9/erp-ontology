@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1500" viewBox="0 0 1280 1500" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+  </marker>
+</defs>
+<style>
+  .h1 { font-size: 26px; font-weight: 700; }
+  .h2 { font-size: 13.5px; }
+  .nt { font-size: 13px; font-weight: 700; }
+  .mid { text-anchor: middle; font-size: 14px; }
+  .nd { font-size: 11.5px; fill: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .badge { font-size: 9.5px; font-weight: 700; fill: #fff; text-anchor: middle;
+           letter-spacing: .6px; }
+  .el { font-size: 11px; fill: #64748b; font-weight: 600; text-anchor: middle; }
+  .edge { stroke: #64748b; stroke-width: 2; marker-end: url(#a); }
+  .dashed { stroke-dasharray: 5 4; }
+</style>
+<rect width="1280" height="1500" fill="#ffffff"/>
+<text x="40" y="46" class="h1" fill="#0f172a">Inside step 4 — the harness</text>
+<text x="40" y="70" class="h2" fill="#64748b">routing is code; agency lives on one path only</text>
+<rect x="470" y="46" width="14" height="14" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="490" y="58" class="nd" fill="#64748b">deterministic code</text>
+<rect x="629.4" y="46" width="14" height="14" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<text x="649.4" y="58" class="nd" fill="#64748b">one model call</text>
+<rect x="759.5999999999999" y="46" width="14" height="14" rx="4" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"/>
+<text x="779.5999999999999" y="58" class="nd" fill="#64748b">agentic</text>
+<rect x="838.6999999999999" y="46" width="14" height="14" rx="4" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="858.6999999999999" y="58" class="nd" fill="#64748b">tool</text>
+<rect x="895.9" y="46" width="14" height="14" rx="4" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<text x="915.9" y="58" class="nd" fill="#64748b">data</text>
+<path d="M210.0,200 L210.0,223.0 L640.0,223.0 L640.0,239" class="edge" fill="none"/>
+<path d="M590.0,200 L590.0,223.0 L640.0,223.0 L640.0,239" class="edge" fill="none"/>
+<path d="M1020.0,200 L1020.0,223.0 L640.0,223.0 L640.0,239" class="edge" fill="none"/>
+<path d="M640.0,364 L640.0,397" class="edge" fill="none"/>
+<path d="M460,435.0 L415,435.0 L260.0,435.0 L260.0,521" class="edge" fill="none"/>
+<rect x="348.2" y="415.0" width="23.6" height="17" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="360.0" y="427.0" class="el">no</text>
+<path d="M820,435.0 L865,435.0 L960.0,435.0 L960.0,521" class="edge" fill="none"/>
+<rect x="874.8" y="415.0" width="30.4" height="17" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="890.0" y="427.0" class="el">yes</text>
+<path d="M260.0,644 L260.0,683" class="edge" fill="none"/>
+<path d="M960.0,620 L960.0,637.0 L825.0,637.0 L825.0,647" class="edge" fill="none"/>
+<path d="M960.0,876 L960.0,905" class="edge" fill="none"/>
+<path d="M460,718.0 L580.0,718.0 L580.0,574.0 L707,574.0" class="edge dashed" fill="none"/>
+<rect x="527.4" y="698.0" width="105.2" height="17" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="580.0" y="710.0" class="el">yes — escalate</text>
+<path d="M260.0,746 L260.0,1079.0 L267,1079.0" class="edge" fill="none"/>
+<rect x="258.2" y="900.5" width="23.6" height="17" rx="4" fill="#ffffff" opacity="0.95"/>
+<text x="270.0" y="912.5" class="el">no</text>
+<path d="M960.0,986 L960.0,1079.0 L1013,1079.0" class="edge" fill="none"/>
+<path d="M640.0,1116 L640.0,1136.0 L340.0,1136.0 L340.0,1149" class="edge" fill="none"/>
+<path d="M640.0,1116 L640.0,1136.0 L940.0,1136.0 L940.0,1149" class="edge" fill="none"/>
+<path d="M340.0,1248 L340.0,1274.0 L640.0,1274.0 L640.0,1293" class="edge" fill="none"/>
+<path d="M940.0,1248 L940.0,1274.0 L640.0,1274.0 L640.0,1293" class="edge" fill="none"/>
+<rect x="60" y="108" width="300" height="92" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<text x="72" y="130" class="nt" fill="#d97706">INPUT · one cluster</text>
+<text x="72" y="148" class="nd">TABLE x_sup_qual_rec (tier=custom)</text>
+<text x="72" y="164" class="nd">  x_scr double [CUSTOM] 3.6 1.2 2.7</text>
+<text x="72" y="180" class="nd">  x_prt int [CUSTOM] -&gt; res_partner</text>
+<rect x="400" y="108" width="380" height="92" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<text x="412" y="130" class="nt" fill="#d97706">CACHED PREFIX · ~1,325 tokens</text>
+<text x="412" y="148" class="nd">system · database overview</text>
+<text x="412" y="164" class="nd">preferred vocabulary · 2 worked examples</text>
+<text x="412" y="180" class="nd">byte-identical on every call</text>
+<rect x="820" y="108" width="400" height="92" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<text x="832" y="130" class="nt" fill="#d97706">CONCEPT REGISTRY</text>
+<text x="832" y="148" class="nd">what earlier clusters named</text>
+<text x="832" y="164" class="nd">sequential only — parallel workers</text>
+<text x="832" y="180" class="nd">cannot see each other</text>
+<rect x="260" y="246" width="760" height="118" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="272" y="268" class="nt" fill="#15803d">1 · hardness()  —  deterministic, no model call</text>
+<rect x="975.6" y="255" width="34.4" height="18" rx="9" fill="#15803d"/>
+<text x="992.8000000000001" y="268" class="badge">CODE</text>
+<text x="272" y="286" class="nd">scored per table, the maximum wins  ·  a cluster is as hard as its hardest table</text>
+<text x="272" y="302" class="nd">custom 0.40   undocumented 0.25   isolation 0.15   opacity 0.20</text>
+<text x="272" y="318" class="nd">x_sup_qual_rec -&gt; 0.528     product_template -&gt; 0.09</text>
+<rect x="460" y="404" width="360" height="62" rx="10" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+<text x="640.0" y="440.0" class="nt mid" fill="#b91c1c">score &gt;= threshold (0.40) ?</text>
+<rect x="60" y="528" width="400" height="116" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<text x="72" y="550" class="nt" fill="#1d4ed8">2a · BASE PATH  ·  75 of 77</text>
+<rect x="402.4" y="537" width="47.599999999999994" height="18" rx="9" fill="#1d4ed8"/>
+<text x="426.2" y="550" class="badge">1 CALL</text>
+<text x="72" y="568" class="nd">one structured call</text>
+<text x="72" y="584" class="nd">prefix + cluster, nothing else</text>
+<text x="72" y="600" class="nd">no tools, no sub-agent</text>
+<text x="72" y="616" class="nd">-&gt; ClusterProposal + confidence</text>
+<rect x="60" y="690" width="400" height="56" rx="10" fill="#fef2f2" stroke="#b91c1c" stroke-width="2"/>
+<text x="260.0" y="723.0" class="nt mid" fill="#b91c1c">min confidence &lt; 0.75 ?</text>
+<rect x="700" y="528" width="520" height="92" rx="10" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"/>
+<text x="712" y="550" class="nt" fill="#6d28d9">2b · AGENT PATH  ·  2 of 77</text>
+<rect x="1142.6" y="537" width="67.4" height="18" rx="9" fill="#6d28d9"/>
+<text x="1176.3" y="550" class="badge">TOOL LOOP</text>
+<text x="712" y="568" class="nd">Phase 1 — investigate: call tools until the</text>
+<text x="712" y="584" class="nd">evidence stops changing the answer,</text>
+<text x="712" y="600" class="nd">hard ceiling --max-iterations 6</text>
+<rect x="700" y="654" width="250" height="62" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="712" y="676" class="nt" fill="#475569">fetch_sample_values</text>
+<text x="712" y="694" class="nd">are five values enough?</text>
+<rect x="970" y="654" width="250" height="62" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="982" y="676" class="nt" fill="#475569">walk_foreign_keys</text>
+<text x="982" y="694" class="nd">what points at this table?</text>
+<rect x="700" y="736" width="250" height="62" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="712" y="758" class="nt" fill="#475569">search_concepts</text>
+<text x="712" y="776" class="nd">already named elsewhere?</text>
+<rect x="970" y="736" width="250" height="62" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="982" y="758" class="nt" fill="#475569">column_statistics</text>
+<text x="982" y="776" class="nd">enum or free text?</text>
+<rect x="700" y="818" width="520" height="58" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="712" y="840" class="nt" fill="#475569">fixed operations — the agent never writes SQL</text>
+<text x="712" y="858" class="nd">distinct_count · value_frequency · min_max · null_fraction</text>
+<rect x="700" y="912" width="520" height="74" rx="10" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"/>
+<text x="712" y="934" class="nt" fill="#6d28d9">Phase 2 — answer</text>
+<rect x="1162.4" y="921" width="47.599999999999994" height="18" rx="9" fill="#6d28d9"/>
+<text x="1186.2" y="934" class="badge">1 CALL</text>
+<text x="712" y="952" class="nd">same conversation, closed with a validated ClusterProposal</text>
+<text x="712" y="968" class="nd">confidence reflects the evidence actually gathered</text>
+<rect x="260" y="1042" width="760" height="74" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="272" y="1064" class="nt" fill="#15803d">3 · collect  —  every result tagged</text>
+<rect x="975.6" y="1051" width="34.4" height="18" rx="9" fill="#15803d"/>
+<text x="992.8000000000001" y="1064" class="badge">CODE</text>
+<text x="272" y="1082" class="nd">path (base | agent) · hardness + driver · confidence · tool calls · seconds · cost</text>
+<text x="272" y="1098" class="nd">so 'what did agency add?' stays a question the run can answer</text>
+<rect x="60" y="1156" width="560" height="92" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="72" y="1178" class="nt" fill="#15803d">4 · dispatch mode</text>
+<rect x="575.6" y="1165" width="34.4" height="18" rx="9" fill="#15803d"/>
+<text x="592.8000000000001" y="1178" class="badge">CODE</text>
+<text x="72" y="1196" class="nd">sequential — registry fed to the next cluster,</text>
+<text x="72" y="1212" class="nd">                 duplicates prevented</text>
+<text x="72" y="1228" class="nd">parallel   — N workers, no registry possible</text>
+<rect x="660" y="1156" width="560" height="92" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<text x="672" y="1178" class="nt" fill="#1d4ed8">5 · reconcile</text>
+<text x="672" y="1196" class="nd">stage 1  vocabulary synonyms — free, no call</text>
+<text x="672" y="1212" class="nd">stage 2  one call over concept names only</text>
+<text x="672" y="1228" class="nd">runs by default in parallel mode</text>
+<rect x="260" y="1300" width="760" height="92" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<text x="272" y="1322" class="nt" fill="#d97706">OUTPUT · ontology.json</text>
+<text x="272" y="1340" class="nd">classes · properties · relations, each with confidence</text>
+<text x="272" y="1356" class="nd">run_metadata: provider, models, path counts, tool calls, hardness threshold,</text>
+<text x="272" y="1372" class="nd">cache reads, duplication rate, seconds, cost_usd</text>
+<path d="M1220,798 L1250,798 L1250,560 L1223,560" class="edge dashed" fill="none"/><text x="1150" y="518" class="el">loop · max 6 rounds</text>
+</svg>

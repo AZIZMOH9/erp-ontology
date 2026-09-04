@@ -1,0 +1,45 @@
+# Local Odoo 17 target for developing and testing the ingestion connector.
+#
+# Not a deployment artefact -- this is the *ERP being read*, not the product. The product runs
+# customer-hosted (see docs/phase-1.md); this file only gives us something realistic to read.
+#
+#   docker compose -f docker/docker-compose.yml up -d
+#   scripts/seed_odoo.sh          # demo data + synthetic custom tables
+#
+# Odoo UI: http://localhost:8069   (db: erp_planner, login: admin / admin)
+# Postgres: postgresql://odoo:odoo@localhost:5433/erp_planner
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"        # 5433 on the host, to avoid clashing with a local Postgres
+    volumes:
+      - odoo-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  odoo:
+    image: odoo:17
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-data:/var/lib/odoo
+
+volumes:
+  odoo-db:
+  odoo-data:
