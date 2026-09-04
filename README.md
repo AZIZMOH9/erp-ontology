@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="erp-planner" width="640">
+</p>
+
 # erp-planner
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -31,18 +35,18 @@ masked before even that.
 
 ## What it does
 
-| Step | | Writes | Cost |
-|---|---|---|---|
-| **ingest** | reads your schema: tables, columns, keys, sample values | `schema.json` | free |
-| **plan** | shows how it will split the work and what that will cost | — | free |
-| **map** | **builds the ontology** | **`ontology.json`** | ~$1 / 400 tables |
-| **second** | maps it again, independently, so disagreements can be spotted | `second.json` | ~$0.75 |
-| **verify** | ranks every mapping by how much it can be trusted | `queue.json` | free |
-| **judge** | drops flagged mappings that are only *worded* differently | `queue.json` | ~$0.20 |
-| **export** | **the ontology as OWL/Turtle** — Protégé, WebVOWL | **`ontology.ttl`** | free |
-| **graph** | draws it | `graph.svg` | free |
-| **ask** | answers questions through the ontology | — | pennies |
-| **act** | shows the ERP call an action *would* make. Dry run only | — | free |
+| Step | | Writes |
+|---|---|---|
+| **ingest** | reads your schema: tables, columns, keys, sample values | `schema.json` |
+| **plan** | shows how it will split the work and what that will cost | — |
+| **map** | **builds the ontology** | **`ontology.json`** |
+| **second** | maps it again, independently, so disagreements can be spotted | `second.json` |
+| **verify** | ranks every mapping by how much it can be trusted | `queue.json` |
+| **judge** | drops flagged mappings that are only *worded* differently | `queue.json` |
+| **export** | **the ontology as OWL/Turtle** — Protégé, WebVOWL | **`ontology.ttl`** |
+| **graph** | draws it | `graph.svg` |
+| **ask** | answers questions through the ontology | — |
+| **act** | shows the ERP call an action *would* make. Dry run only | — |
 
 Everything lands in `./erp-planner/`.
 
@@ -106,15 +110,16 @@ Results land in `./erp-planner/`. Nothing is written into the tool itself.
 ### Running one step at a time
 
 ```bash
-mise run ingest                     # free
-mise run plan                       # free — see the cost before paying it
-mise run map                        # costs money
+mise run ingest                     # read the schema
+mise run plan                       # see how the work splits before running it
+mise run map                        # build the ontology
 mise run map:second                 # a second opinion; doubles what verify can catch
-mise run verify                     # free — the review queue
-mise run judge                      # narrows the queue to real disagreements
+mise run verify                     # the review queue
+mise run judge                      # narrow it to real disagreements
 mise run ask "which products have no internal reference"
 mise run export                     # OWL/Turtle
 mise run graph ScrapEvent           # an image of one concept's neighbourhood
+mise run pipeline                   # or all of the above, step by step
 ```
 
 `mise tasks` lists everything.
