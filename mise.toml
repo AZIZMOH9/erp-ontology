@@ -1,0 +1,97 @@
+# erp-planner: read your ERP, work out what it means, and ask it questions.
+#
+#   mise install      pin the toolchain
+#   mise run setup    install the tool
+#   mise run pipeline everything else — it asks for what it needs
+#
+# `mise tasks` lists these.
+
+[tools]
+python = "3.12"
+uv = "latest"
+
+[env]
+# Your database URL and API key. Written by `mise run pipeline` on the first run.
+# Gitignored, and redacted from task output.
+_.file = { path = ".env", redact = true }
+_.python.venv = { path = ".venv", create = true }
+
+# Where your results go: schema, ontology, review queue.
+RUNS = "erp-planner"
+
+[tasks.setup]
+description = "Install the tool"
+run = "uv pip install -e ."
+
+# --- the whole thing ---------------------------------------------------------------------------
+
+[tasks."pipeline:all"]
+description = "Run every step without asking. COSTS MONEY — see `mise run plan` first"
+run = "erp-planner pipeline --yes"
+
+[tasks.pipeline]
+description = "Run everything, step by step, accepting or skipping each one"
+# raw: hand the terminal to the task, so the prompts can actually read your answers.
+raw = true
+run = "erp-planner pipeline"
+
+# --- or one step at a time ---------------------------------------------------------------------
+
+[tasks.ingest]
+description = "Read your ERP into a schema snapshot (free)"
+run = 'erp-planner ingest odoo --db-url "$ODOO_DB" --masking sensitive --out "{{env.RUNS}}/schema.json"'
+
+[tasks.plan]
+description = "Show what mapping would cost and how it would route (free)"
+run = 'erp-planner map plan "{{env.RUNS}}/schema.json" --show 15'
+
+[tasks.map]
+description = "Work out what the schema means. COSTS MONEY — run `mise run plan` first"
+run = 'erp-planner map run "{{env.RUNS}}/schema.json" --db-url "$ODOO_DB" --mode parallel --concurrency 6 --out "{{env.RUNS}}/ontology.json"'
+
+[tasks."map:second"]
+description = "A second, independent run. Doubles what verification can catch. COSTS MONEY"
+run = 'erp-planner map run "{{env.RUNS}}/schema.json" --no-agent --mode parallel --concurrency 6 --out "{{env.RUNS}}/second.json"'
+
+[tasks.verify]
+description = "Rank every mapping by how much it can be trusted (free)"
+run = 'erp-planner verify run "{{env.RUNS}}/ontology.json" --schema "{{env.RUNS}}/schema.json" --against "{{env.RUNS}}/second.json" --out "{{env.RUNS}}/queue.json" --show 30'
+
+[tasks.judge]
+description = "Narrow the review queue to real disagreements, not wording. COSTS A LITTLE"
+run = 'erp-planner verify judge "{{env.RUNS}}/ontology.json" --schema "{{env.RUNS}}/schema.json" --against "{{env.RUNS}}/second.json" --queue "{{env.RUNS}}/queue.json" --out "{{env.RUNS}}/queue.json"'
+
+[tasks.ask]
+description = 'Ask a question, e.g. mise run ask "how many suppliers are there"'
+usage = 'arg "<question>" help="a question in plain English"'
+run = 'erp-planner ask question "$usage_question" --ontology "{{env.RUNS}}/ontology.json" --schema "{{env.RUNS}}/schema.json" --db-url "$ODOO_DB"'
+
+[tasks.act]
+description = "Show what an action WOULD do. Dry run — nothing is ever sent to your ERP"
+usage = 'arg "<concept>" help="business concept, e.g. SalesOrder"'
+run = 'erp-planner act plan "$usage_concept" --ontology "{{env.RUNS}}/ontology.json" --verification "{{env.RUNS}}/queue.json"'
+
+# --- looking at the result ---------------------------------------------------------------------
+
+[tasks.export]
+description = "Export the ontology as OWL/Turtle — opens in Protege or webvowl.org"
+run = 'erp-planner export "{{env.RUNS}}/ontology.json" --out "{{env.RUNS}}/ontology.ttl"'
+
+[tasks.graph]
+description = "Draw the ontology as an image"
+usage = 'arg "[concept]" help="centre it on this concept; omit for the most connected"'
+run = 'erp-planner export "{{env.RUNS}}/ontology.json" --out "{{env.RUNS}}/graph.dot" ${usage_concept:+--focus "$usage_concept"} --depth 2 --limit 28'
+
+# --- only if you have no ERP to try it on -------------------------------------------------------
+
+[tasks."demo:up"]
+description = "Start a throwaway Odoo to try this against"
+run = "docker compose -f docker/docker-compose.yml up -d"
+
+[tasks."demo:seed"]
+description = "Fill the demo Odoo with data (~10 min)"
+run = "docker/seed.sh"
+
+[tasks."demo:down"]
+description = "Stop it"
+run = "docker compose -f docker/docker-compose.yml down"
