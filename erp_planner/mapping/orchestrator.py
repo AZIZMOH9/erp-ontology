@@ -19,6 +19,7 @@ The orchestrator dispatches reconciliation; it does not perform it.
 
 from __future__ import annotations
 
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
@@ -29,7 +30,7 @@ from sqlalchemy import Engine, create_engine
 from erp_planner.clustering import Cluster, cluster_schema
 from erp_planner.llm.prompts import RECONCILE_SYSTEM
 from erp_planner.llm.providers import Provider, default_models
-from erp_planner.llm.runner import ModelRunner, Usage
+from erp_planner.llm.runner import ModelRunner, Usage, retry_delay
 from erp_planner.mapping.hardness import DEFAULT_THRESHOLD, DEFAULT_WEIGHTS, Hardness, HardnessWeights
 from erp_planner.mapping.hardness import score as score_hardness
 from erp_planner.mapping.llm.agent import run_agent
@@ -71,6 +72,25 @@ class OrchestratorConfig:
     # model's own confidence is evidence, and evidence may overrule a prior.
     escalate_below: float = 0.75
     max_iterations: int = 6
+    # How many times a cluster is attempted before the run gives up on it. A cluster that fails
+    # is lost from the ontology entirely, so it is worth several seconds to try again: the
+    # failures seen in practice -- an answer that would not parse, a shared free-tier pool
+    # returning 429 after its own retries -- are transient, and the same cluster succeeds on the
+    # next attempt.
+    attempts: int = 3
+    # Give up on the whole run once this many clusters have failed without a single success.
+    # Retrying is right for a cluster that failed by accident and wrong for a run that cannot
+    # work at all: an exhausted quota or a saturated shared pool fails every cluster the same
+    # way, and grinding through the rest costs two hours to produce nothing. 0 disables it.
+    abandon_after: int = 5
+    # After the main pass, the clusters that failed are tried again, as many times as this. The
+    # cause is usually congestion, and by the end of a run the minutes that have passed are worth
+    # more than any immediate retry: the pool that was saturated at cluster 3 is often free by
+    # cluster 77. A sweep that recovers nothing ends it -- that is the difference between a
+    # condition that clears and one that will not.
+    sweeps: int = 3
+    # How long to wait before a sweep, giving whatever failed time to clear.
+    sweep_pause: float = 20.0
 
     # Tools. Without a database URL the agent still runs, on snapshot evidence alone.
     db_url: str | None = None
@@ -138,6 +158,13 @@ class Orchestrator:
         )
         self._engine: Engine | None = None
         self.tool_log = ToolLog()
+        # Mapping runs on several threads in parallel mode, so this counter needs a lock.
+        self._lock = threading.Lock()
+        self.cluster_retries = 0
+        self.abandoned = 0
+        self.sweeps_run = 0
+        self.recovered = 0
+        self._sweeping = False
 
     # -- setup ---------------------------------------------------------------------------
     def _engine_for_tools(self) -> Engine | None:
@@ -154,6 +181,35 @@ class Orchestrator:
             log=self.tool_log,
         )
 
+    def _attempt(self, call):
+        """Run a cluster, trying again before moving on rather than losing it to one bad call.
+
+        A cluster that fails is absent from the ontology for the whole run -- four tables that
+        nothing else will map. The failures seen in practice are transient: an answer that would
+        not parse, or a shared free-tier pool answering 429 after the runner's own retries. The
+        same cluster then succeeds on the next attempt, so it is worth a few seconds to ask again
+        before moving on.
+
+        Returns (outcome, None), or (None, what kept happening).
+        """
+        seen: list[str] = []
+        for attempt in range(max(1, self.config.attempts)):
+            try:
+                outcome = call()
+                if attempt:
+                    with self._lock:
+                        self.cluster_retries += attempt
+                return outcome, None
+            except Exception as exc:
+                seen.append(f"{type(exc).__name__}: {exc}")
+                if attempt + 1 < self.config.attempts:
+                    # Honour a Retry-After when the provider sent one, else back off.
+                    time.sleep(retry_delay(exc, attempt, cap=30.0))
+        with self._lock:
+            self.cluster_retries += len(seen) - 1
+        # Naming the count matters: three failures for three different reasons is not one failure.
+        return None, seen[-1] if len(seen) == 1 else f"failed {len(seen)}x, last: {seen[-1]}"
+
     # -- the two paths -------------------------------------------------------------------
     def map_cluster(
         self,
@@ -169,16 +225,17 @@ class Orchestrator:
         if take_agent:
             return self._agent_path(cluster, concepts, prefix, snapshot, hardness, started)
 
-        try:
-            outcome = run_base_llm(self.bulk, cluster, concepts, prefix)
-        except Exception as exc:
+        outcome, failure = self._attempt(
+            lambda: run_base_llm(self.bulk, cluster, concepts, prefix)
+        )
+        if outcome is None:
             return ClusterResult(
                 cluster=cluster,
                 path=Path.BASE,
                 hardness=hardness,
                 model=self.bulk.model_name,
                 seconds=time.monotonic() - started,
-                error=f"{type(exc).__name__}: {exc}",
+                error=failure,
             )
 
         result = ClusterResult(
@@ -212,8 +269,8 @@ class Orchestrator:
         started: float,
         escalated: bool = False,
     ) -> ClusterResult:
-        try:
-            outcome = run_agent(
+        outcome, failure = self._attempt(
+            lambda: run_agent(
                 self.hard,
                 cluster,
                 concepts,
@@ -221,7 +278,8 @@ class Orchestrator:
                 prefix,
                 max_iterations=self.config.max_iterations,
             )
-        except Exception as exc:
+        )
+        if outcome is None:
             return ClusterResult(
                 cluster=cluster,
                 path=Path.AGENT,
@@ -229,7 +287,7 @@ class Orchestrator:
                 model=self.hard.model_name,
                 escalated=escalated,
                 seconds=time.monotonic() - started,
-                error=f"{type(exc).__name__}: {exc}",
+                error=failure,
             )
         return ClusterResult(
             cluster=cluster,
@@ -243,6 +301,18 @@ class Orchestrator:
         )
 
     # -- dispatch ------------------------------------------------------------------------
+    def _hopeless(self, results: list[ClusterResult]) -> bool:
+        """Has this run failed every cluster it has tried so far?
+
+        Never during a sweep: a sweep is made entirely of clusters that already failed once, so
+        it looks hopeless by construction. Judging it by the same rule abandoned runs that were
+        in the middle of recovering.
+        """
+        limit = self.config.abandon_after
+        if self._sweeping or not limit or len(results) < limit:
+            return False
+        return all(r.error for r in results)
+
     def _sequential(self, clusters, prefix, snapshot, on_result) -> list[ClusterResult]:
         concepts: dict[str, str] = {}
         results = []
@@ -254,6 +324,9 @@ class Orchestrator:
                     concepts.setdefault(proposed.label, proposed.table)
             if on_result:
                 on_result(result, self.usage)
+            if self._hopeless(results):
+                self.abandoned = len(clusters) - len(results)
+                break
         return results
 
     def _parallel(self, clusters, prefix, snapshot, on_result) -> list[ClusterResult]:
@@ -267,7 +340,49 @@ class Orchestrator:
                 collected[result.cluster.index] = result
                 if on_result:
                     on_result(result, self.usage)
-        return [collected[c.index] for c in clusters]
+                if self._hopeless(list(collected.values())):
+                    # Cancel what has not started. Threads already in flight run to completion.
+                    self.abandoned = sum(1 for f in futures if f.cancel())
+                    break
+        return [collected[c.index] for c in clusters if c.index in collected]
+
+    def _sweep(self, results, dispatch, prefix, snapshot, on_result):
+        """Go back over the clusters that failed, rather than leaving holes in the ontology.
+
+        Whatever made a cluster fail is usually a passing condition, and by the end of the run
+        several minutes have gone by. Sweeping recovers clusters that an immediate retry could
+        not, because time is the thing that fixes congestion.
+
+        A sweep that recovers nothing stops the sweeping: a cause that has not cleared in a whole
+        pass plus a pause is not going to clear on the next one.
+        """
+        if self.abandoned:
+            return results  # the run was already judged hopeless; sweeping would grind
+        for _ in range(max(0, self.config.sweeps)):
+            failed = [r for r in results if r.error]
+            if not failed:
+                break
+            if self.config.sweep_pause:
+                time.sleep(self.config.sweep_pause)
+            self.sweeps_run += 1
+            self._sweeping = True
+            again = {
+                r.cluster.index: r
+                for r in dispatch([r.cluster for r in failed], prefix, snapshot, on_result)
+            }
+            self._sweeping = False
+            recovered = 0
+            for i, result in enumerate(results):
+                fresh = again.get(result.cluster.index)
+                if result.error and fresh is not None and not fresh.error:
+                    results[i] = fresh
+                    recovered += 1
+                elif result.error and fresh is not None:
+                    results[i] = fresh  # keep the newest error, so the report is not stale
+            self.recovered += recovered
+            if not recovered:
+                break
+        return results
 
     def _reconcile(self, ontology: Ontology, use_model: bool) -> ReconcileReport:
         def call_model(listing: str) -> Reconciliation:
@@ -293,6 +408,7 @@ class Orchestrator:
             self._parallel if self.config.mode is ExecutionMode.PARALLEL else self._sequential
         )
         results = dispatch(clusters, prefix, snapshot, on_result)
+        results = self._sweep(results, dispatch, prefix, snapshot, on_result)
 
         ontology = to_ontology(
             [r.proposal for r in results if r.proposal], schema_source=snapshot.source
@@ -324,6 +440,10 @@ class Orchestrator:
             "rate_limit_waits": self.bulk.rate_limit_waits + (
                 self.hard.rate_limit_waits if self.hard is not self.bulk else 0
             ),
+            "cluster_retries": self.cluster_retries,
+            "abandoned_clusters": self.abandoned,
+            "sweeps": self.sweeps_run,
+            "recovered_by_sweeps": self.recovered,
             "parse_retries": self.bulk.parse_retries_used + (
                 self.hard.parse_retries_used if self.hard is not self.bulk else 0
             ),
