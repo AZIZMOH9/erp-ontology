@@ -12,7 +12,7 @@ and column means, writes the result as OWL, tells you which parts to trust, and 
 through it in plain English.
 
 It runs on your machine against a PostgreSQL-backed ERP — developed against Odoo — and needs one
-API key, from Anthropic, Google or OpenAI. You walk the pipeline a step at a time, accepting or
+API key, from Anthropic, Google, OpenAI or OpenRouter. You walk the pipeline a step at a time, accepting or
 rejecting each one, and it leaves the ontology in `erp-planner/` as `ontology.json` and
 `ontology.ttl`.
 
@@ -98,7 +98,8 @@ mise run setup      # install the tool
 mise run pipeline   # everything else
 ```
 
-`pipeline` asks for a database, a model provider (Claude, Gemini or GPT) and an API key, remembers
+`pipeline` asks for a database, a model provider (Claude, Gemini, GPT, or any of them through
+OpenRouter) and an API key, remembers
 them in a gitignored `.env`, then walks each step — showing what it does, what it costs and how
 long it takes — and waits for you before running anything.
 
@@ -131,8 +132,9 @@ there's a terminal, so nothing hangs in CI.
 
 ```bash
 ODOO_DB=postgresql://user:password@host:5432/database
-ERP_PLANNER_PROVIDER=anthropic          # or google, openai
-ANTHROPIC_API_KEY=...
+ERP_PLANNER_PROVIDER=anthropic          # or google, openai, openrouter
+ANTHROPIC_API_KEY=...                   # or GEMINI_API_KEY, OPENAI_API_KEY, OPENROUTER_API_KEY
+ERP_PLANNER_MODEL=anthropic/claude-sonnet-5   # OpenRouter models are vendor/model slugs
 ERP_PLANNER_HOME=/where/results/go      # defaults to ./erp-planner
 ```
 
@@ -142,7 +144,7 @@ ERP_PLANNER_HOME=/where/results/go      # defaults to ./erp-planner
 erp_planner/            the tool
   cli/                  the command line, one module per step
   llm/                  how it talks to a model
-    providers.py          Claude, Gemini or GPT behind one interface
+    providers.py          Claude, Gemini, GPT or OpenRouter behind one interface
     runner.py             where calls happen; tokens and cost tracked here
     prompts.py            every instruction a model is given, in one file
   ingest/               reading your ERP
@@ -217,7 +219,7 @@ structure without field labels, but nothing else has been tried end to end.
 
 - Python 3.12 and [mise](https://mise.jdx.dev)
 - A read-only connection to your ERP's database
-- An API key from Anthropic, Google or OpenAI
+- An API key from Anthropic, Google, OpenAI or OpenRouter
 - Docker, only for the demo
 
 ## License

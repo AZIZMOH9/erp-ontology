@@ -15,7 +15,15 @@ from typing import Any
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
-from erp_planner.llm.providers import PRICES, Provider, build_model, cache_prefix, usage_from
+from erp_planner.llm.providers import (
+    PRICES,
+    Provider,
+    build_model,
+    cache_prefix,
+    reported_cost,
+    structured_output_method,
+    usage_from,
+)
 
 # Rate limits are a normal condition, not a failure: a free-tier Gemini key allows 20 requests
 # per day per model, and every provider throttles a burst. The API usually says how long to wait.
@@ -51,7 +59,13 @@ class Usage(BaseModel):
     cost_usd: float = 0.0
 
     def add(
-        self, model: str, input_tokens: int, output_tokens: int, cache_read: int, cache_write: int
+        self,
+        model: str,
+        input_tokens: int,
+        output_tokens: int,
+        cache_read: int,
+        cache_write: int,
+        reported_cost: float | None = None,
     ) -> None:
         self.input_tokens += input_tokens
         self.output_tokens += output_tokens
@@ -59,6 +73,10 @@ class Usage(BaseModel):
         self.cache_write_tokens += cache_write
         self.calls += 1
         self.by_model[model] = self.by_model.get(model, 0) + 1
+        # What the provider actually billed, when it says (OpenRouter does), beats our table.
+        if reported_cost is not None:
+            self.cost_usd += reported_cost
+            return
         in_price, out_price = PRICES.get(model, (0.0, 0.0))
         # Cache reads bill at ~0.1x input, writes at ~1.25x.
         self.cost_usd += (
@@ -91,6 +109,11 @@ class ModelRunner:
         self.parse_retries_used = 0
         self._lock = threading.Lock()
         self._model = build_model(provider, model, api_key=api_key, max_tokens=max_tokens)
+        # How a validated answer is requested. Provider-specific where the wrapper's default is
+        # wrong for the endpoint (OpenRouter); otherwise left to LangChain.
+        self._structured_kwargs: dict[str, Any] = {"include_raw": True}
+        if method := structured_output_method(provider):
+            self._structured_kwargs["method"] = method
 
     def _with_retries(self, call, what: str):
         """Retry a throttled call. Anything else is a real failure and is raised at once."""
@@ -115,7 +138,9 @@ class ModelRunner:
 
     def _record(self, response: Any) -> None:
         with self._lock:
-            self.usage.add(self.model_name, *usage_from(response))
+            self.usage.add(
+                self.model_name, *usage_from(response), reported_cost=reported_cost(response)
+            )
 
     def _structured(self, invoke, what: str, schema: type[BaseModel]) -> BaseModel:
         """Call, validate, and sample again when the answer will not parse.
@@ -145,7 +170,7 @@ class ModelRunner:
     # -- the two call shapes ---------------------------------------------------------------
     def structured(self, prefix: str, user: str, schema: type[BaseModel]) -> BaseModel:
         """One call, answer validated against ``schema``."""
-        model = self._model.with_structured_output(schema, include_raw=True)
+        model = self._model.with_structured_output(schema, **self._structured_kwargs)
         return self._structured(
             lambda: model.invoke([self.system(prefix), HumanMessage(content=user)]),
             f"{self.model_name} structured call",
@@ -196,7 +221,7 @@ class ModelRunner:
         behaves differently on every provider, whereas 'investigate, then answer' behaves the same
         everywhere and is far easier to read back afterwards.
         """
-        model = self._model.with_structured_output(schema, include_raw=True)
+        model = self._model.with_structured_output(schema, **self._structured_kwargs)
         return self._structured(
             lambda: model.invoke([*messages, HumanMessage(content=instruction)]),
             f"{self.model_name} final answer",

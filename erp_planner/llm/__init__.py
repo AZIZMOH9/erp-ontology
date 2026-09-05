@@ -9,8 +9,11 @@ from erp_planner.llm.providers import (
     build_model,
     cache_prefix,
     cacheable,
+    cost_is_known,
     default_models,
     has_price,
+    reported_cost,
+    structured_output_method,
     usage_from,
 )
 from erp_planner.llm.runner import ModelRunner, Usage
@@ -26,7 +29,10 @@ __all__ = [
     "build_model",
     "cache_prefix",
     "cacheable",
+    "cost_is_known",
     "default_models",
     "has_price",
+    "reported_cost",
+    "structured_output_method",
     "usage_from",
 ]

@@ -44,6 +44,7 @@ KEY_SIGNUP = {
     "google": "https://aistudio.google.com/apikey",
     "anthropic": "https://console.anthropic.com/settings/keys",
     "openai": "https://platform.openai.com/api-keys",
+    "openrouter": "https://openrouter.ai/settings/keys",
 }
 
 
@@ -264,23 +265,30 @@ def choose_provider(console: Console) -> str:
         ("1", Provider.ANTHROPIC, "Claude", "console.anthropic.com"),
         ("2", Provider.GOOGLE, "Gemini", "aistudio.google.com"),
         ("3", Provider.OPENAI, "GPT", "platform.openai.com"),
+        ("4", Provider.OPENROUTER, "OpenRouter", "openrouter.ai"),
     ]
     # Which provider defaults have actually been run. Gemini's were once gemini-2.5-*, which
     # turned out to be retired; saying which are guesses costs nothing and saves a confusing 404.
-    verified = {Provider.GOOGLE: "verified", Provider.ANTHROPIC: "from a maintained table"}
+    # OpenRouter's ids were checked against its model list, but nothing has been run through it.
+    verified = {
+        Provider.GOOGLE: "verified",
+        Provider.ANTHROPIC: "from a maintained table",
+        Provider.OPENROUTER: "ids listed, not yet run",
+    }
     for number, provider, family, where in options:
         bulk, hard = DEFAULT_MODELS[provider]
         status = verified.get(provider, "[yellow]defaults unverified[/yellow]")
         console.print(
-            f"    [bold]{number}[/bold] {family:<7} [dim]{bulk} / {hard}[/dim]  "
+            f"    [bold]{number}[/bold] {family:<10} [dim]{bulk} / {hard}[/dim]  "
             f"({status})  [dim]key from {where}[/dim]"
         )
     console.print(
         "    [dim]only Anthropic caches the shared prompt prefix; the others pay full price "
-        "for it on every call. --model overrides any of these.[/dim]"
+        "for it on every call. --model overrides any of these; OpenRouter takes any vendor's "
+        "model as vendor/model, e.g. openai/gpt-5.[/dim]"
     )
     try:
-        pick = Prompt.ask("  [bold]which[/bold]", choices=["1", "2", "3"], default="2")
+        pick = Prompt.ask("  [bold]which[/bold]", choices=["1", "2", "3", "4"], default="2")
     except (EOFError, KeyboardInterrupt):
         return "google"
 
