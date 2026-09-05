@@ -9,7 +9,7 @@ from rich.table import Table as RichTable
 
 from erp_planner.cli.common import _read, _write, console
 from erp_planner.clustering import cluster_schema
-from erp_planner.llm.providers import API_KEY_ENV, Provider, api_key_for, has_price
+from erp_planner.llm.providers import API_KEY_ENV, Provider, api_key_for, cost_is_known
 from erp_planner.mapping.hardness import DEFAULT_THRESHOLD
 from erp_planner.mapping.hardness import score as hardness_score
 from erp_planner.mapping.llm.rendering import build_prefix
@@ -81,7 +81,7 @@ def cmd_map_run(
         Provider.ANTHROPIC,
         "--provider",
         envvar="ERP_PLANNER_PROVIDER",
-        help="anthropic | openai | google",
+        help="anthropic | openai | google | openrouter",
     ),
     model: str = typer.Option(None, "--model", help="bulk model (default: provider's)"),
     hard_model: str = typer.Option(None, "--hard-model", help="model for the agent path"),
@@ -212,7 +212,7 @@ def cmd_map_run(
     summary.add_row("  served from cache", f"{run.usage.cache_read_tokens:,}")
     summary.add_row("output tokens", f"{run.usage.output_tokens:,}")
     summary.add_row("wall clock", f"{run.seconds:.0f}s")
-    priced = has_price(bulk) and has_price(hard)
+    priced = cost_is_known(provider, bulk, hard)
     summary.add_row(
         "cost",
         f"[bold]${run.usage.cost_usd:.2f}[/bold]"
