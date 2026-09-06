@@ -56,7 +56,9 @@ API_KEY_ENV: dict[Provider, tuple[str, ...]] = {
     Provider.ANTHROPIC: ("ERP_PLANNER_API_KEY", "ANTHROPIC_API_KEY"),
     Provider.OPENAI: ("ERP_PLANNER_API_KEY", "OPENAI_API_KEY"),
     Provider.GOOGLE: ("ERP_PLANNER_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY"),
-    Provider.OPENROUTER: ("ERP_PLANNER_API_KEY", "OPENROUTER_API_KEY"),
+    # OPEN_ROUTER too: it is what the key is called in the .env this was first run against,
+    # and a key that is present but unread reads as a missing key.
+    Provider.OPENROUTER: ("ERP_PLANNER_API_KEY", "OPENROUTER_API_KEY", "OPEN_ROUTER"),
 }
 
 
